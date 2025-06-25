@@ -1,0 +1,59 @@
+
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Wörterbuch Burgenland-Romani</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 2rem; background: #f5f5f5; }
+        h1 { color: #333; }
+        input { padding: 0.5rem; width: 100%; max-width: 400px; margin-bottom: 1rem; }
+        .entry { background: white; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; box-shadow: 0 0 5px rgba(0,0,0,0.1); }
+        .word { font-weight: bold; font-size: 1.2rem; }
+        .details { color: #555; margin-top: 0.2rem; }
+    </style>
+</head>
+<body>
+    <h1>Wörterbuch Burgenland-Romani</h1>
+    <input type="text" id="search" placeholder="Suche nach Romanisch, Deutsch oder Englisch...">
+    <div id="results"></div>
+
+    <script>
+        let data = [];
+
+        async function loadData() {
+            const response = await fetch('burgenland_romani_dict.json');
+            data = await response.json();
+            showResults('');
+        }
+
+        function showResults(query) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '';
+
+            const filtered = data.filter(entry =>
+                entry.roman.toLowerCase().includes(query) ||
+                entry.deutsch.toLowerCase().includes(query) ||
+                entry.englisch.toLowerCase().includes(query)
+            );
+
+            filtered.forEach(entry => {
+                const div = document.createElement('div');
+                div.className = 'entry';
+                div.innerHTML = `
+                    <div class="word">${entry.roman} <span style="font-weight:normal">(${entry.klassifikation})</span></div>
+                    <div class="details">Deutsch: ${entry.deutsch}</div>
+                    <div class="details">Englisch: ${entry.englisch}</div>
+                `;
+                resultsDiv.appendChild(div);
+            });
+        }
+
+        document.getElementById('search').addEventListener('input', e => {
+            showResults(e.target.value.toLowerCase());
+        });
+
+        loadData();
+    </script>
+</body>
+</html>
